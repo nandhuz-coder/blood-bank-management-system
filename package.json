@@ -10,6 +10,9 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build":"npm i"
   },
+  "engines": {
+    "node": ">=14.20.1"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
