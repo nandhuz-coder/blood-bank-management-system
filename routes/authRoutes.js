@@ -6,10 +6,10 @@ const authmiddleware = require("../middlewares/authmiddleware");
 const router = express.Router();
 
 //ro
-router.post("/register", registerController);
+router.post("/register",authmiddleware, registerController);
 
 //LOGIN || POST
-router.post("/login",loginController);
+router.post("/login",authmiddleware,loginController);
 
 router.get("/current-user",authmiddleware,currentUserController );
 
