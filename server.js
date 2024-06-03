@@ -18,7 +18,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
  origin:"https://blood-bank-app-hicu.onrender.com",
-  ));
+}));
 app.use(morgan("dev"));
 
 //routes
