@@ -20,35 +20,35 @@ const Donor = () => {
   }, []);
   return (
     <>
-    <Layout>
-     
-      <table className="table ">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Email</th>
-            <th scope="col">Phone</th>
-            <th scope="col">Address</th>
-            <th scope="col">Date & Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data?.map((record) => (
-            <tr key={record._id}>
-              <td>{record.name || record.organisationName + "(ORG)"}</td>
+      <Layout>
 
-              <td>{record.email}</td>
-
-              <td>{record.phone}</td>
-              <td>{record.address}</td>
-              <td>{moment(record.createdAt).format("DD/MM/YYYY hh:mm A")}</td>
+        <table className="table ">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Phone</th>
+              <th scope="col">Address</th>
+              <th scope="col">Date & Time</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </Layout>
+          </thead>
+          <tbody>
+            {data?.map((record) => (
+              <tr key={record._id}>
+                <td>{record.name || record.organisationName + "(ORG)"}</td>
 
-   </>
+                <td>{record.email}</td>
+
+                <td>{record.phone}</td>
+                <td>{record.address}</td>
+                <td>{moment(record.createdAt).format("DD/MM/YYYY hh:mm A")}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Layout>
+
+    </>
   );
 };
 

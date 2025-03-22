@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import Spinner from "../components/shared/Spinner";
 import Layout from "../components/shared/Layout/Layout";
 import Modal from "../components/shared/Modals/Modal";
@@ -28,13 +30,20 @@ const HomePage = () => {
   useEffect(() => {
     getBloodRecords();
   }, []);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
   return (
     <Layout>
       {user?.role === "admin" && navigate("/admin")}
       {user?.role === "donor" && navigate("/donor-page")}
       {user?.role === "hospital" && navigate("/hospital-page")}
-      
-      {error && <span>{alert(error)}</span>}
+
+      <ToastContainer />
       {loading ? (
         <Spinner />
       ) : (

@@ -1,19 +1,20 @@
 import { userLogin, userRegister } from "../redux/features/auth/authActions";
 import store from "../redux/store";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const handleLogin= (e, email, password,role)=>{
-e.preventDefault();
-try {
-    if(!role || !email || !password)
-    return alert("Please Provide all Fields");
-    store.dispatch(userLogin({email,password,role}));
-} catch (error) {
-    console.log(error);
-    
-}
+const handleLogin = (e, email, password, role) => {
+    e.preventDefault();
+    try {
+        if (!role || !email || !password)
+            return toast.error("Please Provide all Fields");
+        store.dispatch(userLogin({ email, password, role }));
+    } catch (error) {
+        console.log(error);
+    }
 };
 
-const handleRegister= (  e,
+const handleRegister = (e,
     name,
     role,
     email,
@@ -22,10 +23,11 @@ const handleRegister= (  e,
     hospitalName,
     address,
     website,
-    phone)=>{
-        e.preventDefault();
-        try {
-           store.dispatch(userRegister({name,
+    phone) => {
+    e.preventDefault();
+    try {
+        store.dispatch(userRegister({
+            name,
             role,
             email,
             password,
@@ -33,11 +35,12 @@ const handleRegister= (  e,
             hospitalName,
             address,
             website,
-            phone})
-            );
-        } catch (error) {
-            console.log(error);
-        }
+            phone
+        })
+        );
+    } catch (error) {
+        console.log(error);
+    }
 };
 
-export {handleLogin, handleRegister};
+export { handleLogin, handleRegister };
