@@ -6,29 +6,84 @@ import useAuthService from "../../../services/authServices"; // ✅ Import the h
 
 const Form = ({ formType, submitBtn, formTitle }) => {
   const navigate = useNavigate();
-  const { handleLogin, handleRegister } = useAuthService(); // ✅ Get functions from hook
+  const { handleLogin, handleRegister } = useAuthService();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("donor");
-  const [name, setName] = useState("");
-  const [organisationName, setOrganisationName] = useState("");
-  const [address, setAddress] = useState("");
-  const [hospitalName, setHospitalName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [website, setWebsite] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    role: "donor",
+    name: "",
+    organisationName: "",
+    hospitalName: "",
+    address: "",
+    phone: "",
+    website: "",
+  });
+
+  const [errors, setErrors] = useState({}); // ✅ Store validation errors
+
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (!formData.email) {
+      newErrors.email = "Email is required.";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Invalid email format.";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required.";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters.";
+    }
+
+    if (formType === "register") {
+      if (formData.role === "admin" || formData.role === "donor") {
+        if (!formData.name) newErrors.name = "Name is required.";
+      }
+
+      if (formData.role === "organisation" && !formData.organisationName) {
+        newErrors.organisationName = "Organisation Name is required.";
+      }
+
+      if (formData.role === "hospital" && !formData.hospitalName) {
+        newErrors.hospitalName = "Hospital Name is required.";
+      }
+
+      if (!formData.address) newErrors.address = "Address is required.";
+
+      if (!formData.phone) {
+        newErrors.phone = "Phone number is required.";
+      } else if (!/^\d{10}$/.test(formData.phone)) {
+        newErrors.phone = "Phone number must be 10 digits.";
+      }
+
+      if (!formData.website) {
+        newErrors.website = "Website is required.";
+      } else if (!/^https?:\/\/[\w.-]+\.[a-z]{2,}.*$/i.test(formData.website)) {
+        newErrors.website = "Invalid website URL (e.g., https://example.com).";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // ✅ Returns `true` if no errors
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    // Clear validation error when user types
+    setErrors((prevErrors) => ({ ...prevErrors, [e.target.name]: "" }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
 
     if (formType === "login") {
-      return handleLogin(e, email, password, role, navigate);
-    } else if (formType === "register") {
-      return handleRegister(
-        e,
-        { name, role, email, password, organisationName, hospitalName, address, website, phone },
-        navigate
-      );
+      handleLogin(e, formData.email, formData.password, formData.role, navigate);
+    } else {
+      handleRegister(e, formData, navigate);
     }
   };
 
@@ -48,8 +103,8 @@ const Form = ({ formType, submitBtn, formTitle }) => {
                 name="role"
                 id={`${option}Radio`}
                 value={option}
-                onChange={(e) => setRole(e.target.value)}
-                checked={role === option}
+                onChange={handleChange}
+                checked={formData.role === option}
               />
               <label htmlFor={`${option}Radio`} className="form-check-label">
                 {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -61,95 +116,49 @@ const Form = ({ formType, submitBtn, formTitle }) => {
         {/* Form Inputs */}
         {formType === "login" ? (
           <>
-            <InputType
-              labelfor="forEmail"
-              labelText="Email"
-              inputType="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <InputType
-              labelfor="forPassword"
-              labelText="Password"
-              inputType="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <InputType labelFor="email" labelText="Email" inputType="email" name="email" value={formData.email} onChange={handleChange} autoComplete="email" />
+            {errors.email && <p className="text-danger">{errors.email}</p>}
+
+            <InputType labelFor="password" labelText="Password" inputType="password" name="password" value={formData.password} onChange={handleChange} autoComplete="current-password" />
+            {errors.password && <p className="text-danger">{errors.password}</p>}
           </>
         ) : (
           <>
-            {(role === "admin" || role === "donor") && (
-              <InputType
-                labelfor="forName"
-                labelText="Name"
-                inputType="text"
-                name="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+            {(formData.role === "admin" || formData.role === "donor") && (
+              <>
+                <InputType labelFor="name" labelText="Name" inputType="text" name="name" value={formData.name} onChange={handleChange} autoComplete="name" />
+                {errors.name && <p className="text-danger">{errors.name}</p>}
+              </>
             )}
-            {role === "organisation" && (
-              <InputType
-                labelfor="forOrganisationName"
-                labelText="Organisation Name"
-                inputType="text"
-                name="organisationName"
-                value={organisationName}
-                onChange={(e) => setOrganisationName(e.target.value)}
-              />
+
+            {formData.role === "organisation" && (
+              <>
+                <InputType labelFor="organisationName" labelText="Organisation Name" inputType="text" name="organisationName" value={formData.organisationName} onChange={handleChange} />
+                {errors.organisationName && <p className="text-danger">{errors.organisationName}</p>}
+              </>
             )}
-            {role === "hospital" && (
-              <InputType
-                labelfor="forHospitalName"
-                labelText="Hospital Name"
-                inputType="text"
-                name="hospitalName"
-                value={hospitalName}
-                onChange={(e) => setHospitalName(e.target.value)}
-              />
+
+            {formData.role === "hospital" && (
+              <>
+                <InputType labelFor="hospitalName" labelText="Hospital Name" inputType="text" name="hospitalName" value={formData.hospitalName} onChange={handleChange} />
+                {errors.hospitalName && <p className="text-danger">{errors.hospitalName}</p>}
+              </>
             )}
-            <InputType
-              labelfor="forEmail"
-              labelText="Email"
-              inputType="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <InputType
-              labelfor="forPassword"
-              labelText="Password"
-              inputType="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <InputType
-              labelfor="forAddress"
-              labelText="Address"
-              inputType="text"
-              name="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
-            <InputType
-              labelfor="forPhone"
-              labelText="Phone"
-              inputType="text"
-              name="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-            <InputType
-              labelfor="forWebsite"
-              labelText="Website"
-              inputType="text"
-              name="website"
-              value={website}
-              onChange={(e) => setWebsite(e.target.value)}
-            />
+
+            <InputType labelFor="email" labelText="Email" inputType="email" name="email" value={formData.email} onChange={handleChange} autoComplete="email" />
+            {errors.email && <p className="text-danger">{errors.email}</p>}
+
+            <InputType labelFor="password" labelText="Password" inputType="password" name="password" value={formData.password} onChange={handleChange} autoComplete="new-password" />
+            {errors.password && <p className="text-danger">{errors.password}</p>}
+
+            <InputType labelFor="address" labelText="Address" inputType="text" name="address" value={formData.address} onChange={handleChange} />
+            {errors.address && <p className="text-danger">{errors.address}</p>}
+
+            <InputType labelFor="phone" labelText="Phone" inputType="tel" name="phone" value={formData.phone} onChange={handleChange} pattern="[0-9]{10}" placeholder="10-digit number" />
+            {errors.phone && <p className="text-danger">{errors.phone}</p>}
+
+            <InputType labelFor="website" labelText="Website" inputType="url" name="website" value={formData.website} onChange={handleChange} placeholder="https://example.com" />
+            {errors.website && <p className="text-danger">{errors.website}</p>}
           </>
         )}
 

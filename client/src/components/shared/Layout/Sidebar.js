@@ -1,5 +1,4 @@
 import React from 'react';
-//import { userMenu } from './Menus/userMenu';
 import { useSelector } from 'react-redux';
 import { useLocation, Link } from 'react-router-dom';
 import "../../../Styles/Layout.css";
@@ -8,96 +7,43 @@ const Sidebar = () => {
   const location = useLocation();
   const { user } = useSelector(state => state.auth);
 
+  // Sidebar menu based on user roles
+  const sidebarMenu = {
+    organisation: [
+      { path: "/", name: "Inventory", icon: "fa-solid fa-warehouse" },
+      { path: "/donor", name: "Donor", icon: "fa-solid fa-hand-holding-medical" },
+      { path: "/hospital", name: "Hospital", icon: "fa-solid fa-hospital" },
+    ],
+    donor: [
+      { path: "/organisation", name: "Organisation", icon: "fa-sharp fa-solid fa-building-ngo" },
+      { path: "/donation", name: "Donation", icon: "fa-solid fa-hand-holding-medical" },
+    ],
+    hospital: [
+      { path: "/organisation", name: "Organisation", icon: "fa-sharp fa-solid fa-building-ngo" },
+      { path: "/consumer", name: "Consumer", icon: "fa-solid fa-hospital" },
+    ],
+    admin: [
+      { path: "/donor-list", name: "Donor List", icon: "fa-solid fa-hand-holding-medical" },
+      { path: "/hospital-list", name: "Hospital List", icon: "fa-solid fa-hospital" },
+      { path: "/org-list", name: "Organisation List", icon: "fa-sharp fa-solid fa-building-ngo" },
+    ],
+  };
 
   return (
-    <div>
-      <div className='sidebar'>
-        <div className='menu'>
-
-          { /*userMenu.map((menu)=>{
-                const isActive=location.pathname===menu.path;
-                return (
-                    <div className={`menu-item ${isActive && "active"}`
-                    } key={menu.name}>
-                    <i className={menu.icon}></i>
-                    <Link to={menu.path}>{menu.name}</Link>
-                    </div>
-                )
-            })*/}
-          {user?.role === "organisation" && (
-            <>
-              <div className={`menu-item ${location.pathname === "/" && "active"}`
-              } >
-                <i className="fa-solid fa-warehouse"></i>
-                <Link to="/">Inventory</Link>
-              </div>
-
-              <div className={`menu-item ${location.pathname === "/donor" && "active"}`
-              }>
-                <i className="fa-solid fa-hand-holding-medical"></i>
-                <Link to="/donor">Donor</Link>
-              </div>
-
-              <div className={`menu-item ${location.pathname === "/hospital" && "active"}`
-              }>
-                <i className="fa-solid fa-hospital"></i>
-                <Link to="/hospital">Hospital</Link>
-              </div>
-            </>
-
-          )}
-          {(user?.role === "donor" || user?.role === "hospital") && (
-            <div className={`menu-item ${location.pathname === "/organisation" && "active"}`
-            }>
-              <i className="fa-sharp fa-solid fa-building-ngo"></i>
-              <Link to="/organisation">Organisation</Link>
-            </div>
-          )}
-
-          {(user?.role === "hospital") && (
-            <div className={`menu-item ${location.pathname === "/consumer" && "active"}`
-            }>
-              <i className=" fa-solid fa-hospital"></i>
-              <Link to="/consumer">Consumer</Link>
-            </div>
-          )}
-
-          {(user?.role === "donor") && (
-            <div className={`menu-item ${location.pathname === "/donation" && "active"}`
-            }>
-              <i className=" fa-solid fa-hand-holding-medical"></i>
-              <Link to="/donation">Donation</Link>
-            </div>
-          )}
-
-          {user?.role === "admin" && (
-            <>
-              <div className={`menu-item ${location.pathname === "/donor-list" && "active"}`
-              } >
-                <i className="fa-solid fa-hand-holding-medical"></i>
-                <Link to="/donor-list">Donor List</Link>
-              </div>
-
-              <div className={`menu-item ${location.pathname === "/hospital-list" && "active"}`
-              }>
-                <i className="fa-solid fa-hospital"></i>
-                <Link to="/hospital-list">Hospital List</Link>
-              </div>
-
-              <div className={`menu-item ${location.pathname === "/org-list" && "active"}`
-              }>
-                <i className="fa-sharp fa-solid fa-building-ngo"></i>
-                <Link to="/org-list">Organisation List</Link>
-              </div>
-            </>
-
-          )}
-
-
-        </div>
+    <div className="sidebar">
+      <div className="menu">
+        {(sidebarMenu[user?.role] || []).map((item) => (
+          <div
+            key={item.path}
+            className={`menu-item ${location.pathname === item.path ? "active" : ""}`}
+          >
+            <i className={item.icon}></i>
+            <Link to={item.path}>{item.name}</Link>
+          </div>
+        ))}
       </div>
     </div>
   );
-}
+};
 
 export default Sidebar;

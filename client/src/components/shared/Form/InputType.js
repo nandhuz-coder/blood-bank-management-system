@@ -1,28 +1,35 @@
 import React from "react";
 
 const InputType = ({
-  labelfor,
+  labelFor,
   labelText,
-  value,
+  value = "",
   onChange,
   name,
-  inputType,
+  inputType = "text",
+  placeholder = "",
+  required = false,
+  min,
+  max
 }) => {
   return (
-    <>
-      <div className="mb-1">
-        <label htmlFor={labelfor} className="form-label">
-          {labelText}
-        </label>
-        <input
-          className="form-control"
-          type={inputType}
-          name={name}
-          value={value}
-          onChange={onChange}
-        />
-      </div>
-    </>
+    <div className="mb-3">
+      <label htmlFor={labelFor} className="form-label">
+        {labelText}
+      </label>
+      <input
+        className="form-control"
+        id={labelFor}  
+        type={inputType}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        min={min}
+        max={max}
+      />
+    </div>
   );
 };
 

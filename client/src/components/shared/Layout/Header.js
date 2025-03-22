@@ -1,68 +1,74 @@
 import React from 'react';
 import { BiDonateBlood, BiUserCircle } from 'react-icons/bi';
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { logout } from '../../../redux/features/auth/authSlice';
 
 const Header = () => {
   const { user } = useSelector(state => state.auth);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogout = () => {
-    toast.promise(
-      new Promise((resolve, reject) => {
-        toast.info(
-          <div>
-            <p>Are you sure you want to logout?</p>
-            <button className="btn btn-danger btn-sm me-2" onClick={() => resolve(true)}>Yes</button>
-            <button className="btn btn-secondary btn-sm" onClick={() => reject(false)}>No</button>
-          </div>,
-          {
-            position: "top-center",
-            autoClose: false,
-            closeOnClick: true,
-            draggable: false,
-            closeButton: false,
-          }
-        );
-      }),
+    toast.warn(
+      "Are you sure you want to logout?",
       {
-        pending: "Waiting for confirmation...",
-        success: "Logged out successfully!",
-        error: "Logout cancelled",
+        position: "top-center",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+        onClose: () => { },
+        onOpen: () => { },
+        closeButton: (
+          <div>
+            <button className="btn btn-sm btn-danger me-2" onClick={() => confirmLogout(true)}>Yes</button>
+            <button className="btn btn-sm btn-secondary" onClick={() => confirmLogout(false)}>No</button>
+          </div>
+        )
       }
-    ).then(() => {
-      localStorage.clear();
+    );
+  };
+
+  const confirmLogout = (confirm) => {
+    if (confirm) {
+      dispatch(logout());  // Redux logout action
+      toast.success("Logged out successfully!");
       navigate("/login");
-    }).catch(() => {
-      // Do nothing, just dismiss the toast.
-    });
+    } else {
+      toast.dismiss();
+    }
   };
 
   return (
-    <nav className='navbar'>
-      <div className='container-fluid'>
-        <div className='navbar-brand'>
-          <BiDonateBlood color='red' /> Blood Bank App
+    <nav className='navbar navbar-expand-lg navbar-light bg-light shadow-sm p-2'>
+      <div className='container-fluid d-flex justify-content-between align-items-center'>
+        <div className='navbar-brand d-flex align-items-center'>
+          <BiDonateBlood color='red' size={28} className="me-2" />
+          <span className="fw-bold">Blood Bank App</span>
         </div>
-        <ul className='navbar-nav flex-row'>
+
+        <ul className='navbar-nav d-flex align-items-center'>
           <li className='nav-item mx-3'>
-            <p className='nav-link'>
-              <BiUserCircle /> {user?.name || user?.hospitalName || user?.organisationName} &nbsp;
+            <span className='nav-link d-flex align-items-center'>
+              <BiUserCircle size={22} className="me-1" />
+              {user?.name || user?.hospitalName || user?.organisationName} &nbsp;
               <span className="badge bg-secondary">{user?.role}</span>
-            </p>
+            </span>
           </li>
+
           {user?.role === "organisation" && ["/", "/donor", "/hospital"].includes(location.pathname) ? (
-            <li className='nav-item mx-3 mt-2'>
+            <li className='nav-item mx-3'>
               <Link to="/analytics" className='nav-link'>Analytics</Link>
             </li>
           ) : (
-            <li className='nav-item mx-3 mt-2'>
+            <li className='nav-item mx-3'>
               <Link to="/" className='nav-link'>Home</Link>
             </li>
           )}
-          <li className='nav-item mx-3 '>
+
+          <li className='nav-item mx-3'>
             <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
           </li>
         </ul>

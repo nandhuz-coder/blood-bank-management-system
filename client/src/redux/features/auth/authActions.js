@@ -9,9 +9,8 @@ export const userLogin = createAsyncThunk(
       const { data } = await API.post("/auth/login", { role, email, password });
 
       if (data.success) {
-        localStorage.setItem("token", data.token);
         toast.success("Login Successful!");
-        return data;
+        return data; // Redux-persist will handle storage
       }
       return rejectWithValue(data.message);
     } catch (error) {

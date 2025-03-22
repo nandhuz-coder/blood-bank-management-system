@@ -2,51 +2,54 @@ import { useDispatch } from "react-redux";
 import { userLogin, userRegister } from "../redux/features/auth/authActions";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { unwrapResult } from "@reduxjs/toolkit"; // ✅ Extracts payload properly
 
 const useAuthService = () => {
     const dispatch = useDispatch();
 
+    // ✅ Improved Login Function
     const handleLogin = async (e, email, password, role, navigate) => {
         e.preventDefault();
 
         if (!role || !email || !password) {
-            return toast.error("Please Provide all Fields");
+            return toast.error("Please provide all fields");
         }
 
         try {
-            const result = await dispatch(userLogin({ email, password, role }));
+            const resultAction = await dispatch(userLogin({ email, password, role }));
+            const data = unwrapResult(resultAction); // ✅ Get API response safely
 
-            if (userLogin.fulfilled.match(result)) {
-                toast.success("Login Successful!");
-                setTimeout(() => navigate("/admin"), 1000);
-            } else {
-                toast.error(result.payload || "Login failed");
-            }
+            toast.success("Login Successful!");
+
+            // ✅ Redirect based on user role
+            if (data.user?.role === "admin") navigate("/admin");
+            else if (data.user?.role === "hospital") navigate("/hospital-dashboard");
+            else navigate("/dashboard"); // Default
+
         } catch (error) {
             console.error(error);
-            toast.error("Something went wrong. Please try again.");
+            toast.error(error || "Login failed. Please try again.");
         }
     };
 
+    // ✅ Improved Register Function
     const handleRegister = async (e, formData, navigate) => {
         e.preventDefault();
 
         if (!formData.name || !formData.role || !formData.email || !formData.password) {
-            return toast.error("Please Provide all Required Fields");
+            return toast.error("Please provide all required fields");
         }
 
         try {
-            const result = await dispatch(userRegister(formData));
+            const resultAction = await dispatch(userRegister(formData));
+            unwrapResult(resultAction); // ✅ Extract payload
 
-            if (userRegister.fulfilled.match(result)) {
-                toast.success("Registration successful! Redirecting to login...");
-                setTimeout(() => navigate("/login"), 1500);
-            } else {
-                toast.error(result.payload || "Registration failed");
-            }
+            toast.success("Registration successful! Redirecting to login...");
+            navigate("/login");
+
         } catch (error) {
             console.error(error);
-            toast.error("Something went wrong. Please try again.");
+            toast.error(error || "Registration failed. Please try again.");
         }
     };
 

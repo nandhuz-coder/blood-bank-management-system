@@ -1,4 +1,6 @@
 import axios from "axios";
+import store from "../redux/store"; // Import Redux Store
+import { logout } from "../redux/features/auth/authSlice";
 
 // Base URL (Uses Environment Variable or Fallback)
 const API = axios.create({
@@ -9,26 +11,29 @@ const API = axios.create({
 });
 
 // ✅ Attach Token Automatically Before Every Request
-API.interceptors.request.use((req) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        req.headers.Authorization = `Bearer ${token}`;
-    }
-    return req;
-}, (error) => {
-    return Promise.reject(error);
-});
+API.interceptors.request.use(
+    (req) => {
+        const token = store.getState().auth.token; // Get token from Redux store
+        if (token) {
+            req.headers.Authorization = `Bearer ${token}`;
+        }
+        return req;
+    },
+    (error) => Promise.reject(error)
+);
 
 // ✅ Handle Expired Token or Unauthorized Access
 API.interceptors.response.use(
     (response) => response, // If response is successful, return it.
     (error) => {
-        if (error.response) {
-            if (error.response.status === 401) {
-                console.warn("Unauthorized! Logging out...");
-                localStorage.removeItem("token"); // Clear token on unauthorized
-                window.location.replace("/login"); // Redirect to login page
-            }
+        if (error.response?.status === 401) {
+            console.warn("Unauthorized! Logging out...");
+
+            // Dispatch Logout Action
+            store.dispatch(logout());
+
+            // Redirect to login without page reload
+            window.location.href = "/login";
         }
         return Promise.reject(error);
     }

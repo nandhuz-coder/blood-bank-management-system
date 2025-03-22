@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Layout from "../../components/shared/Layout/Layout";
 import moment from "moment";
 import API from "../../services/API";
@@ -7,27 +7,25 @@ import { useSelector } from "react-redux";
 const Consumer = () => {
   const { user } = useSelector((state) => state.auth);
   const [data, setData] = useState([]);
-  //find donar records
-  const getDonors = async () => {
+
+  // ✅ Depend on `user?._id` instead of `user`
+  const getDonors = useCallback(async () => {
+    if (!user?._id) return; // Ensure API is not called if user is null/undefined
     try {
       const { data } = await API.post("/inventory/get-inventory-hospital", {
-        filters: {
-          inventoryType: "out",
-          hospital: user?._id,
-        },
+        filters: { inventoryType: "out", hospital: user._id }, // ✅ Access `user._id` safely
       });
       if (data?.success) {
         setData(data?.inventory);
-        console.log(data);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
-  };
+  }, [user?._id]); // ✅ Fixed dependency array
 
   useEffect(() => {
     getDonors();
-  }, []);
+  }, [getDonors]); // ✅ No more warnings
 
   return (
     <Layout>
