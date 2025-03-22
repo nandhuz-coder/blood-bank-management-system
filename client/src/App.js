@@ -1,10 +1,12 @@
 import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./components/Routes/ProtectedRoute";
 import PublicRoute from "./components/Routes/PublicRoute";
+import Loading from "./components/Loading/loading";
 
+// Lazy Loading Components
 const HomePage = lazy(() => import("./pages/HomePage"));
 const Register = lazy(() => import("./pages/auth/Register"));
 const Login = lazy(() => import("./pages/auth/login"));
@@ -24,94 +26,163 @@ const HospitalPage = lazy(() => import("./pages/Dashboard/HospitalPage"));
 function App() {
   return (
     <>
+      {/* Toast Notifications */}
       <ToastContainer />
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
+
+      <Routes>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<Loading />}>
                 <AdminHome />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/donor-list"
-            element={
-              <ProtectedRoute>
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/donor-list"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<Loading />}>
                 <DonarList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/hospital-list"
-            element={
-              <ProtectedRoute>
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hospital-list"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<Loading />}>
                 <HospitalList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/org-list"
-            element={
-              <ProtectedRoute>
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/org-list"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<Loading />}>
                 <OrgList />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/" element={
-            <ProtectedRoute>
-              <HomePage />
+              </Suspense>
             </ProtectedRoute>
-          } />
-          <Route path="/donor" element={
+          }
+        />
+        <Route
+          path="/"
+          element={
             <ProtectedRoute>
-              <Donor />
+              <Suspense fallback={<Loading />}>
+                <HomePage />
+              </Suspense>
             </ProtectedRoute>
-          } />
-          <Route path="/consumer" element={
+          }
+        />
+        <Route
+          path="/donor"
+          element={
             <ProtectedRoute>
-              <Consumer />
+              <Suspense fallback={<Loading />}>
+                <Donor />
+              </Suspense>
             </ProtectedRoute>
-          } />
-          <Route path="/analytics" element={
+          }
+        />
+        <Route
+          path="/consumer"
+          element={
             <ProtectedRoute>
-              <Analytics />
+              <Suspense fallback={<Loading />}>
+                <Consumer />
+              </Suspense>
             </ProtectedRoute>
-          } />
-          <Route path="/donation" element={
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
             <ProtectedRoute>
-              <Donation />
+              <Suspense fallback={<Loading />}>
+                <Analytics />
+              </Suspense>
             </ProtectedRoute>
-          } />
-          <Route path="/organisation" element={
+          }
+        />
+        <Route
+          path="/donation"
+          element={
             <ProtectedRoute>
-              <OrganisationPage />
+              <Suspense fallback={<Loading />}>
+                <Donation />
+              </Suspense>
             </ProtectedRoute>
-          } />
-          <Route path="/hospital" element={
+          }
+        />
+        <Route
+          path="/organisation"
+          element={
             <ProtectedRoute>
-              <Hospitals />
+              <Suspense fallback={<Loading />}>
+                <OrganisationPage />
+              </Suspense>
             </ProtectedRoute>
-          } />
-          <Route path="/donor-page" element={
+          }
+        />
+        <Route
+          path="/hospital"
+          element={
             <ProtectedRoute>
-              <DonorPage />
+              <Suspense fallback={<Loading />}>
+                <Hospitals />
+              </Suspense>
             </ProtectedRoute>
-          } />
-          <Route path="/hospital-page" element={
+          }
+        />
+        <Route
+          path="/donor-page"
+          element={
             <ProtectedRoute>
-              <HospitalPage />
+              <Suspense fallback={<Loading />}>
+                <DonorPage />
+              </Suspense>
             </ProtectedRoute>
-          } />
-          <Route path="/login" element={
-            <PublicRoute><Login /></PublicRoute>
-          } />
-          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-        </Routes>
-      </Suspense>
+          }
+        />
+        <Route
+          path="/hospital-page"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<Loading />}>
+                <HospitalPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Suspense fallback={<Loading />}>
+                <Login />
+              </Suspense>
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Suspense fallback={<Loading />}>
+                <Register />
+              </Suspense>
+            </PublicRoute>
+          }
+        />
+      </Routes>
     </>
-  )
+  );
 }
 
 export default App;

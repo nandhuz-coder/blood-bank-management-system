@@ -1,30 +1,23 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Form from "../../components/shared/Form/Form";
-import { useSelector } from "react-redux";
-import Spinner from "../../components/shared/Spinner";
-import { toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import useAuthService from "../../services/authServices"; // ✅ Import the custom hook
 
 const Register = () => {
-  const { loading, error } = useSelector(state => state.auth);
+  const navigate = useNavigate();
+  const { handleRegister } = useAuthService(); // ✅ Get function from hook
 
-  React.useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
+  // ✅ Wrapper function to pass `navigate`
+  const onRegisterSubmit = (e, formData) => {
+    handleRegister(e, formData, navigate);
+  };
 
   return (
-    <>
-      {loading ? (<Spinner />) : (<div className="row g-0">
-        <div className="col-md-8 form-banner">
-          <img src="./assets/images/banner2.jpg" alt="register" ></img>
-        </div>
-        <div className="col-md-4 form-container">
-          <Form formTitle={"Register"} submitBtn={"Register"} formType={"register"} />
-        </div>
-      </div>)}
-    </>
+    <div className="register-container">
+      <h2>Register</h2>
+      {/* ✅ Pass onRegisterSubmit instead of handleRegister */}
+      <Form formTitle="Register Page" submitBtn="Register" formType="register" onSubmit={onRegisterSubmit} />
+    </div>
   );
 };
 

@@ -12,7 +12,13 @@ module.exports = async (req, res, next) => {
          * @throws {TypeError} If the 'Authorization' header is not present or improperly formatted.
          */
         if (req.originalUrl != "/api/v1/auth/current-user" && !req.headers['authorization']) return next();
-        const token = req.headers['authorization'].split(" ")[1];
+        const token = req.headers['authorization']?.split(" ")[1];
+        if (!token) {
+            return res.status(401).send({
+                success: false,
+                message: "Auth Failed",
+            });
+        }
         JWT.verify(token, process.env.JWT_SECRET, (err, decode) => {
             if (err) {
                 return res.status(401).send({

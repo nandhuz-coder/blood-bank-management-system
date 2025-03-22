@@ -7,83 +7,45 @@ export const userLogin = createAsyncThunk(
   async ({ role, email, password }, { rejectWithValue }) => {
     try {
       const { data } = await API.post("/auth/login", { role, email, password });
-      //store token
+
       if (data.success) {
-        toast.success(data.message);
         localStorage.setItem("token", data.token);
-        window.location.replace("/");
+        toast.success("Login Successful!");
+        return data;
       }
-      return data;
+      return rejectWithValue(data.message);
     } catch (error) {
-      if (error.response && error.response.data.message) {
-        return rejectWithValue(error.response.data.message);
-      } else {
-        return rejectWithValue(error.message);
-      }
+      return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   }
 );
 
-//register
-export const userRegister = createAsyncThunk(
-  "auth/register",
-  async (
-    {
-      name,
-      role,
-      email,
-      password,
-      phone,
-      organisationName,
-      address,
-      hospitalName,
-      website,
-    },
-    { rejectWithValue }
-  ) => {
-    try {
-      const { data } = await API.post("/auth/register", {
-        name,
-        role,
-        email,
-        password,
-        phone,
-        organisationName,
-        address,
-        hospitalName,
-        website,
-      });
-      if (data?.success) {
-        toast.success("User Registered Successfully");
-        window.location.replace("/login");
-      }
-    } catch (error) {
-      console.log(error);
-      if (error.response && error.response.data.message) {
-        return rejectWithValue(error.response.data.message);
-      } else {
-        return rejectWithValue(error.message);
-      }
-    }
-  }
-);
-
-//current user
 export const getCurrentUser = createAsyncThunk(
   "auth/getCurrentUser",
-  async ({ rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const res = await API.get("/auth/current-user");
-      if (res.data) {
-        return res?.data;
-      }
+      const { data } = await API.get("/auth/current-user");
+      return data;
     } catch (error) {
-      console.log(error);
-      if (error.response && error.response.data.message) {
-        return rejectWithValue(error.response.data.message);
-      } else {
-        return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || "User fetch failed");
+    }
+  }
+);
+
+export const userRegister = createAsyncThunk(
+  "auth/register",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const { data } = await API.post("/auth/register", formData);
+
+      if (data.success) {
+        toast.success("Registration Successful!");
+        return data;
       }
+
+      return rejectWithValue(data.message);
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Registration failed");
     }
   }
 );

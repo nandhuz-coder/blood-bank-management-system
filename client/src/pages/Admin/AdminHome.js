@@ -7,38 +7,18 @@ const AdminHome = () => {
   return (
     <Layout>
       <div className="container">
-        <div className="d-felx flex-column mt-4">
+        <div className="d-flex flex-column mt-4">
+          {/* ✅ Fixes typo in "d-flex" */}
           <h1>
-            Welcome Admin <i className="text-success">{user?.name}</i>
+            Welcome <i className="text-success">{user?.name || "Admin"}</i>
           </h1>
-          <h3>Manage Blood Management System </h3>
+          {/* ✅ Fallback text in case `user?.name` is undefined */}
+          <h3>Manage Blood Management System</h3>
           <hr />
           <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ad
-            explicabo animi blanditiis incidunt dicta quia, quibusdam facere
-            corporis! Dolores, reprehenderit cum sed repellat laudantium
-            architecto natus est nostrum accusamus, odio aspernatur minima
-            fugiat quam molestiae nisi. Temporibus impedit dolorem quia.
-            Distinctio modi non excepturi illo odio voluptatum quae nostrum a
-            temporibus sequi! Explicabo, quasi consequatur ad qui quos labore
-            distinctio voluptates alias nostrum ab dicta aspernatur molestias
-            adipisci quibusdam error ipsa. Totam, tenetur dolores eaque tempora
-            officiis deserunt assumenda? Rerum nemo est nihil laudantium
-            necessitatibus. Possimus, voluptatem voluptates blanditiis quas
-            aspernatur, quam, quaerat minus maiores ipsam sint perferendis
-            dolor. Dignissimos voluptatem doloribus sint in quis omnis, atque
-            neque praesentium voluptatum suscipit. Quas esse, accusantium maxime
-            obcaecati iure officiis aperiam minus alias quod cum quos qui
-            voluptatibus, numquam, ad id dolore odit! Minima laudantium sunt,
-            explicabo nesciunt quos voluptatibus qui libero eligendi praesentium
-            debitis obcaecati similique assumenda nobis labore totam dolore
-            perferendis adipisci fugiat quibusdam tempore doloremque voluptatum
-            accusantium. Accusamus, incidunt sequi. Esse sunt officia fuga,
-            officiis saepe tempora repellat suscipit aliquid cupiditate
-            perferendis, asperiores architecto molestiae rem iste eaque
-            molestias reiciendis. Laborum modi asperiores, reprehenderit
-            assumenda numquam, vitae exercitationem illum nesciunt, dolorum
-            deleniti accusamus consequatur id. Necessitatibus dolore ad fugit?
+            This is the admin dashboard where you can manage the entire blood
+            donation and management system. Use the navigation menu to add, 
+            update, and monitor blood availability, donor information, and system analytics.
           </p>
         </div>
       </div>
