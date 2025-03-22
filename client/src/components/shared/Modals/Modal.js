@@ -5,7 +5,6 @@ import API from "./../../../services/API";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-toast.configure();
 
 const Modal = () => {
   const [inventoryType, setInventoryType] = useState("in");
