@@ -43,8 +43,5 @@ const PORT = process.env.PORT || 3000;
 
 //listen
 app.listen(PORT, () => {
-  console.log(
-    `Node Server Running  On Port ${PORT}`
-      .bgBlue.white
-  );
+  console.log(`Node Server Running  On Port ${PORT}`.bgBlue.bold);
 });
