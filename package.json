@@ -1,20 +1,20 @@
 {
-  "name": "blood-bank-app",
+  "name": "blood-bank-management-system",
   "version": "1.0.0",
-  "description": "This is my mern stack blood bank app",
+  "description": "Blood Bank Management System using MERN Stack",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "nodemon server.js",
     "client": "npm start --prefix ./client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "build":"npm install   && npm install   --prefix ./client && npm run build --prefix ./client",
-     "start": "node server.js"
+    "build": "npm install   && npm install   --prefix ./client && npm run build --prefix ./client",
+    "start": "node server.js"
   },
   "engines": {
     "node": ">=14.20.1"
   },
-  "author": "",
+  "author": "Nandha Gopan",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -28,5 +28,13 @@
     "moment": "^2.29.4",
     "mongoose": "^7.3.1",
     "morgan": "^1.10.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nandhuz-coder/blood-bank-management-system.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nandhuz-coder/blood-bank-management-system/issues"
+  },
+  "homepage": "https://github.com/nandhuz-coder/blood-bank-management-system#readme"
 }
