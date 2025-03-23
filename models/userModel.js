@@ -43,6 +43,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "password is requied"],
     },
+    bloodGroup: {
+      type: String,
+      required: function () {
+        if (this.role === "donor") {
+          return true;
+        }
+        return false;
+      },
+      enum: ["O+", "O-", "AB+", "AB-", "A-", "A+", "B-", "B+"]
+    },
     website: {
       type: String,
     },

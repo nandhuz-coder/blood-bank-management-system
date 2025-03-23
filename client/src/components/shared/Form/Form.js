@@ -18,6 +18,7 @@ const Form = ({ formType, submitBtn, formTitle }) => {
     address: "",
     phone: "",
     website: "",
+    bloodGroup: "",
   });
 
   const [errors, setErrors] = useState({}); // ✅ Store validation errors
@@ -52,16 +53,14 @@ const Form = ({ formType, submitBtn, formTitle }) => {
 
       if (!formData.address) newErrors.address = "Address is required.";
 
+      if (formData.role === "donor") {
+        if (!formData.bloodGroup) newErrors.bloodGroup = "Blood Group is required.";
+      }
+
       if (!formData.phone) {
         newErrors.phone = "Phone number is required.";
       } else if (!/^\d{10}$/.test(formData.phone)) {
         newErrors.phone = "Phone number must be 10 digits.";
-      }
-
-      if (!formData.website) {
-        newErrors.website = "Website is required.";
-      } else if (!/^https?:\/\/[\w.-]+\.[a-z]{2,}.*$/i.test(formData.website)) {
-        newErrors.website = "Invalid website URL (e.g., https://example.com).";
       }
     }
 
@@ -156,6 +155,13 @@ const Form = ({ formType, submitBtn, formTitle }) => {
 
             <InputType labelFor="phone" labelText="Phone" inputType="tel" name="phone" value={formData.phone} onChange={handleChange} pattern="[0-9]{10}" placeholder="10-digit number" />
             {errors.phone && <p className="text-danger">{errors.phone}</p>}
+
+            {formData.role === "donor" && (
+              <>
+                <InputType labelFor="bloodGroup" labelText="Blood Group" inputType="text" name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} placeholder="O+, O-, AB+, AB-, A-, A+, B-,B+" />
+                {errors.bloodGroup && <p className="text-danger">{errors.bloodGroup}</p>}
+              </>
+            )}
 
             <InputType labelFor="website" labelText="Website" inputType="url" name="website" value={formData.website} onChange={handleChange} placeholder="https://example.com" />
             {errors.website && <p className="text-danger">{errors.website}</p>}

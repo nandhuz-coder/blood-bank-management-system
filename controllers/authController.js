@@ -5,34 +5,21 @@ const jwt = require("jsonwebtoken");
 const registerController = async (req, res) => {
   try {
     const exisitingUser = await userModel.findOne({ email: req.body.email });
-    //validation
-    if (exisitingUser) {
-      return res.status(200).send({
-        success: false,
-        message: "User ALready exists",
-      });
-    }
-    //hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
-    req.body.password = hashedPassword;
-    //rest data
-    const user = new userModel(req.body);
-    await user.save();
-    return res.status(201).send({
+    if (exisitingUser) return res.status(400).json({ success: false, message: "User already exists" });
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const user = await userModel.create({ ...req.body, password: hashedPassword });
+
+    return res.status(201).json({
       success: true,
-      message: "User Registerd Successfully",
-      user,
+      message: "User Registered Successfully",
+      user: { _id: user._id, email: user.email, role: user.role },
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error In Register API",
-      error,
-    });
+    res.status(500).json({ success: false, message: "Error In Register API", error });
   }
 };
+
 
 //login callback
 const loginController = async (req, res) => {

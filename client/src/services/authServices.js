@@ -24,7 +24,7 @@ const useAuthService = () => {
             // ✅ Redirect based on user role
             if (data.user?.role === "admin") navigate("/admin");
             else if (data.user?.role === "hospital") navigate("/hospital-dashboard");
-            else navigate("/dashboard"); // Default
+            else navigate("/"); // Default
 
         } catch (error) {
             console.error(error);

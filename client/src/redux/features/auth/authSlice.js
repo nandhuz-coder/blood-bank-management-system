@@ -4,7 +4,7 @@ import { getCurrentUser, userLogin, userRegister } from "./authActions";
 const initialState = {
     loading: false,
     user: null,
-    token: null,
+    token: localStorage.getItem("token") || null,  // ✅ Persist token
     error: null,
 };
 
@@ -16,6 +16,7 @@ const authSlice = createSlice({
             state.user = null;
             state.token = null;
             state.error = null;
+            localStorage.removeItem("token");  // ✅ Remove token on logout
         },
     },
     extraReducers: (builder) => {
@@ -24,29 +25,25 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.user = payload.user;
                 state.token = payload.token;
-            })
-            .addCase(userRegister.pending, (state) => {
-                state.loading = true;
-                state.error = null;
+                localStorage.setItem("token", payload.token);  // ✅ Store token
             })
             .addCase(userRegister.fulfilled, (state, { payload }) => {
                 state.loading = false;
                 state.user = payload.user;
                 state.token = payload.token;
+                localStorage.setItem("token", payload.token);  // ✅ Store token
             })
-            .addCase(userRegister.rejected, (state, { payload }) => {
+            .addCase(getCurrentUser.fulfilled, (state, { payload }) => {
                 state.loading = false;
-                state.error = payload;
+                state.user = payload.user;
             })
-            .addCase(getCurrentUser.rejected, (state, { payload }) => {
+            .addCase(getCurrentUser.rejected, (state) => {
                 state.loading = false;
-                state.error = payload;
-                if (payload?.status === 401) {
-                    state.user = null;
-                    state.token = null;
-                }
+                state.user = null;
+                state.token = null;
+                localStorage.removeItem("token");  // ✅ Clear on unauthorized
             });
-    }
+    },
 });
 
 export const { logout } = authSlice.actions;

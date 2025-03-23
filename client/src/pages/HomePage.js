@@ -14,13 +14,12 @@ const HomePage = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
 
-  //get function
+  // ✅ Fetch data function
   const getBloodRecords = async () => {
     try {
       const { data } = await API.get("/inventory/get-inventory");
       if (data?.success) {
         setData(data?.inventory);
-        // console.log(data);
       }
     } catch (error) {
       console.log(error);
@@ -31,6 +30,13 @@ const HomePage = () => {
     getBloodRecords();
   }, []);
 
+  // ✅ Handle Navigation in `useEffect`
+  useEffect(() => {
+    if (user?.role === "admin") navigate("/admin");
+    else if (user?.role === "donor") navigate("/donor-page");
+    else if (user?.role === "hospital") navigate("/hospital-page");
+  }, [user, navigate]);
+
   useEffect(() => {
     if (error) {
       toast.error(error);
@@ -39,53 +45,44 @@ const HomePage = () => {
 
   return (
     <Layout>
-      {user?.role === "admin" && navigate("/admin")}
-      {user?.role === "donor" && navigate("/donor-page")}
-      {user?.role === "hospital" && navigate("/hospital-page")}
-
       <ToastContainer />
       {loading ? (
         <Spinner />
       ) : (
-        <>
-          <div className="container">
-            <h4
-              className="ms-4"
-              data-bs-toggle="modal"
-              data-bs-target="#staticBackdrop"
-              style={{ cursor: "pointer" }}
-            >
-              <i className="fa-solid fa-plus text-success py-4"></i>
-              Add Inventory
-            </h4>
-            <table className="table ">
-              <thead>
-                <tr>
-                  <th scope="col">Blood Group</th>
-                  <th scope="col">Inventory Type</th>
-                  <th scope="col">Quantity</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Date & Time</th>
+        <div className="container">
+          <h4
+            className="ms-4"
+            data-bs-toggle="modal"
+            data-bs-target="#staticBackdrop"
+            style={{ cursor: "pointer" }}
+          >
+            <i className="fa-solid fa-plus text-success py-4"></i>
+            Add Inventory
+          </h4>
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">Blood Group</th>
+                <th scope="col">Inventory Type</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Email</th>
+                <th scope="col">Date & Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.map((record) => (
+                <tr key={record._id}>
+                  <td>{record.bloodGroup}</td>
+                  <td>{record.inventoryType}</td>
+                  <td>{record.quantity} (ML)</td>
+                  <td>{record.email}</td>
+                  <td>{moment(record.createdAt).format("DD/MM/YYYY hh:mm A")}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {data?.map((record) => (
-                  <tr key={record._id}>
-                    <td>{record.bloodGroup}</td>
-                    <td>{record.inventoryType}</td>
-                    <td>{record.quantity} (ML)</td>
-                    <td>{record.email}</td>
-                    <td>
-                      {moment(record.createdAt).format("DD/MM/YYYY hh:mm A")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <Modal />
-          </div>
-        </>
+              ))}
+            </tbody>
+          </table>
+          <Modal />
+        </div>
       )}
     </Layout>
   );

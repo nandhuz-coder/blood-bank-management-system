@@ -10,7 +10,7 @@ export const userLogin = createAsyncThunk(
 
       if (data.success) {
         toast.success("Login Successful!");
-        return data; // Redux-persist will handle storage
+        return data;
       }
       return rejectWithValue(data.message);
     } catch (error) {

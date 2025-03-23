@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "../../redux/features/auth/authActions";
 import { Navigate } from "react-router-dom";
-import Loading from "../Loading/loading"; // ✅ Loading component
+import Loading from "../Loading/loading";
 
 const ProtectedRoute = ({ children }) => {
   const dispatch = useDispatch();
@@ -10,20 +10,12 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     if (token && !user) {
-      dispatch(getCurrentUser()); // ✅ Fetch user if token exists
+      dispatch(getCurrentUser()); // ✅ Fetch user only if needed
     }
   }, [dispatch, token, user]);
 
-  // ✅ Show loading spinner while fetching user data
-  if (loading) {
-    return <Loading />;
-  }
-
-  // ✅ If no token or user, redirect to login
-  if (!token || !user) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (loading) return <Loading />;
+  if (!token || !user) return <Navigate to="/login" replace />;
   return children;
 };
 

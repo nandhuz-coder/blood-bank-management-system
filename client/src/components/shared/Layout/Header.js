@@ -10,30 +10,36 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-
+  const CustomCloseButton = ({ closeToast }) => (
+    <div>
+      <button
+        className="btn btn-sm btn-danger me-2"
+        onClick={() => {
+          confirmLogout(true); // Logout
+          closeToast(); // Close the toast
+        }}
+      >
+        Yes
+      </button>
+      <button className="btn btn-sm btn-secondary" onClick={closeToast}>
+        No
+      </button>
+    </div>
+  );
   const handleLogout = () => {
-    toast.warn(
-      "Are you sure you want to logout?",
-      {
-        position: "top-center",
-        autoClose: false,
-        closeOnClick: false,
-        draggable: false,
-        onClose: () => { },
-        onOpen: () => { },
-        closeButton: (
-          <div>
-            <button className="btn btn-sm btn-danger me-2" onClick={() => confirmLogout(true)}>Yes</button>
-            <button className="btn btn-sm btn-secondary" onClick={() => confirmLogout(false)}>No</button>
-          </div>
-        )
-      }
-    );
+    toast.warn("Are you sure you want to logout?", {
+      position: "top-center",
+      autoClose: false,
+      closeOnClick: false,
+      draggable: false,
+      closeButton: (props) => <CustomCloseButton {...props} />,
+    });
   };
+
 
   const confirmLogout = (confirm) => {
     if (confirm) {
-      dispatch(logout());  // Redux logout action
+      dispatch(logout());
       toast.success("Logged out successfully!");
       navigate("/login");
     } else {
