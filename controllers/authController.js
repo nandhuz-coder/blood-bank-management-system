@@ -16,6 +16,8 @@ const registerController = async (req, res) => {
       user: { _id: user._id, email: user.email, role: user.role },
     });
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({ success: false, message: "Error In Register API", error });
   }
 };

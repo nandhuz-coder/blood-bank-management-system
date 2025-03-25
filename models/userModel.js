@@ -51,7 +51,6 @@ const userSchema = new mongoose.Schema(
         }
         return false;
       },
-      enum: ["O+", "O-", "AB+", "AB-", "A-", "A+", "B-", "B+"]
     },
     website: {
       type: String,

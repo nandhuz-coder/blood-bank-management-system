@@ -23,7 +23,7 @@ const useAuthService = () => {
 
             // ✅ Redirect based on user role
             if (data.user?.role === "admin") navigate("/admin");
-            else if (data.user?.role === "hospital") navigate("/hospital-dashboard");
+            else if (data.user?.role === "hospital") navigate("/hospital-page");
             else navigate("/"); // Default
 
         } catch (error) {
@@ -35,11 +35,11 @@ const useAuthService = () => {
     // ✅ Improved Register Function
     const handleRegister = async (e, formData, navigate) => {
         e.preventDefault();
+        console.log(formData);
 
-        if (!formData.name || !formData.role || !formData.email || !formData.password) {
+        if ( !formData.role || !formData.email || !formData.password) {
             return toast.error("Please provide all required fields");
         }
-
         try {
             const resultAction = await dispatch(userRegister(formData));
             unwrapResult(resultAction); // ✅ Extract payload
