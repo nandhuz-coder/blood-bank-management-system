@@ -1,4 +1,3 @@
-const inventoryModel = require("../models/inventoryModel");
 const userModel = require("../models/userModel");
 const request = require("../models/request");
 
@@ -70,8 +69,71 @@ const deleteRequest = async (req, res) => {
   }
 }
 
+const getuserReq = async (req, res) => {
+  try {
+    const blood = await userModel.findById(req.body.userId);
+    const pendingRequests = await request.find({
+      status: "pending",
+      bloodGroup: blood.bloodGroup
+    }).populate({
+      path: 'hospitalId',
+      select: 'hospitalName address'
+    });
+    const userId = req.body.userId;
+    pendingRequests.forEach(request => {
+      request.intrested = false;
+      request.donors.forEach(donor => {
+        if (donor?.id.equals(userId)) request.intrested = true;
+      });
+    });
+    return res.status(200).send({
+      data: pendingRequests.map(req => ({
+        ...req.toObject(),
+        intrested: req.intrested
+      }))
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Error in fetching pending requests",
+      error,
+    });
+  }
+}
+
+
+const getIntrested = async (req, res) => {
+  try {
+    const intrested = await request.findById(req.body.id);
+    if (!intrested) {
+      return res.status(404).send({
+        success: false,
+        message: "Request not found",
+      });
+    }
+    intrested.donors.push({
+      id: req.body.userId,
+      action: "pending",
+    });
+    await intrested.save();
+    return res.status(200).send({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Error in registering interest",
+      error,
+    });
+  }
+}
+
 module.exports = {
   getDonorsListController,
   deleteRequest,
-  createRequestController
+  getuserReq,
+  createRequestController,
+  getIntrested
 };

@@ -8,7 +8,7 @@ const Hospitals = () => {
   const [data, setData] = useState([]);
   const getHospitals = async () => {
     try {
-      const { data } = await API.get("/inventory/get-hospitals");
+      const { data } = await API.get("/inventory/user/get-requests");
       if (data?.success) {
         setData(data?.hospitals);
       }

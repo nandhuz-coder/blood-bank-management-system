@@ -17,9 +17,20 @@ const requestSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["pending", "approved", "rejected"],
+            enum: ["pending", "done"],
             default: "pending",
         },
+        donors: [{
+            id: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "users"
+            },
+            action: {
+                type: String,
+                enum: ["pending", "waiting", "accepted", "rejected"],
+                default: "pending",
+            }
+        }]
     },
     { timestamps: true }
 );

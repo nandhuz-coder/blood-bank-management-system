@@ -7,7 +7,7 @@ const Donor = () => {
   const [data, setData] = useState([]);
   const getDonors = async () => {
     try {
-      const { data } = await API.get("/inventory/get-donors");
+      const { data } = await API.get("/inventory/user/get-requests");
       if (data?.success) {
         setData(data?.donors);
       }
@@ -21,7 +21,6 @@ const Donor = () => {
   return (
     <>
       <Layout>
-
         <table className="table ">
           <thead>
             <tr>

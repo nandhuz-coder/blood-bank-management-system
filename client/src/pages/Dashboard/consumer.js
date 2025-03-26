@@ -8,12 +8,11 @@ const Consumer = () => {
   const { user } = useSelector((state) => state.auth);
   const [data, setData] = useState([]);
 
-  // ✅ Depend on `user?._id` instead of `user`
   const getDonors = useCallback(async () => {
-    if (!user?._id) return; // Ensure API is not called if user is null/undefined
+    if (!user?._id) return;
     try {
       const { data } = await API.post("/inventory/get-inventory-hospital", {
-        filters: { inventoryType: "out", hospital: user._id }, // ✅ Access `user._id` safely
+        filters: { inventoryType: "out", hospital: user._id },
       });
       if (data?.success) {
         setData(data?.inventory);
@@ -21,7 +20,7 @@ const Consumer = () => {
     } catch (error) {
       console.error(error);
     }
-  }, [user?._id]); // ✅ Fixed dependency array
+  }, [user?._id]);
 
   useEffect(() => {
     getDonors();
