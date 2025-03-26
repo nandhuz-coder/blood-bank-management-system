@@ -1,5 +1,6 @@
 const userModel = require("../models/userModel");
 const request = require("../models/request");
+const donated = require("../models/donated");
 
 
 const createRequestController = async (req, res) => {
@@ -130,10 +131,34 @@ const getIntrested = async (req, res) => {
   }
 }
 
+const getDonationHistory = async (req, res) => {
+  try {
+    const donationHistory = await donated.find({ user: req.body.userId }).populate({
+      path: 'donationHistory.hospital',
+      select: 'hospitalName address'
+    });
+
+    if (!donationHistory.length) return res.status(200).send({ data: false });
+
+    return res.status(200).send({
+      data: donationHistory,
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Error in fetching donation history",
+      error,
+    });
+  }
+}
+
 module.exports = {
   getDonorsListController,
   deleteRequest,
   getuserReq,
   createRequestController,
-  getIntrested
+  getIntrested,
+  getDonationHistory
 };
