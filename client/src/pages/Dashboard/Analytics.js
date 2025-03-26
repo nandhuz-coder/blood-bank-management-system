@@ -14,7 +14,6 @@ const Analytics = () => {
       const { data } = await API.get("/analytics/bloodGroups-data");
       if (data?.success) {
         setData(data?.bloodGroupData);
-        // console.log(data);
       }
     } catch (error) {
       console.log(error);

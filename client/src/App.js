@@ -14,7 +14,6 @@ const Login = lazy(() => import("./pages/auth/login"));
 // ✅ Dashboard Components
 const Donor = lazy(() => import("./pages/Dashboard/donor"));
 const Hospitals = lazy(() => import("./pages/Dashboard/Hospitals"));
-const OrganisationPage = lazy(() => import("./pages/Dashboard/OrganisationPage"));
 const Consumer = lazy(() => import("./pages/Dashboard/consumer"));
 const Donation = lazy(() => import("./pages/Donation"));
 const Analytics = lazy(() => import("./pages/Dashboard/Analytics"));
@@ -25,7 +24,6 @@ const HospitalPage = lazy(() => import("./pages/Dashboard/HospitalPage"));
 const AdminHome = lazy(() => import("./pages/Admin/AdminHome"));
 const DonarList = lazy(() => import("./pages/Admin/DonarList"));
 const HospitalList = lazy(() => import("./pages/Admin/HospitalList"));
-const OrgList = lazy(() => import("./pages/Admin/OrgList"));
 
 // ✅ Protected Routes List
 const protectedRoutes = [
@@ -33,12 +31,10 @@ const protectedRoutes = [
   { path: "/admin", element: <AdminHome /> },
   { path: "/donor-list", element: <DonarList /> },
   { path: "/hospital-list", element: <HospitalList /> },
-  { path: "/org-list", element: <OrgList /> },
   { path: "/donor", element: <Donor /> },
   { path: "/consumer", element: <Consumer /> },
   { path: "/analytics", element: <Analytics /> },
   { path: "/donation", element: <Donation /> },
-  { path: "/organisation", element: <OrganisationPage /> },
   { path: "/hospital", element: <Hospitals /> },
   { path: "/donor-page", element: <DonorPage /> },
   { path: "/hospital-page", element: <HospitalPage /> },
@@ -49,7 +45,6 @@ function App() {
     <>
       {/* ✅ Toast Notifications */}
       <ToastContainer />
-
       {/* ✅ Wrap Entire Routes with Suspense */}
       <Suspense fallback={<Loading />}>
         <Routes>
@@ -57,7 +52,6 @@ function App() {
           {protectedRoutes.map(({ path, element }) => (
             <Route key={path} path={path} element={<ProtectedRoute>{element}</ProtectedRoute>} />
           ))}
-
           {/* ✅ Public Routes */}
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />

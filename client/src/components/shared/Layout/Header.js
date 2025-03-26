@@ -1,7 +1,7 @@
 import React from 'react';
 import { BiDonateBlood, BiUserCircle } from 'react-icons/bi';
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { logout } from '../../../redux/features/auth/authSlice';
 
@@ -9,7 +9,6 @@ const Header = () => {
   const { user } = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
   const CustomCloseButton = ({ closeToast }) => (
     <div>
       <button
@@ -59,24 +58,21 @@ const Header = () => {
           <li className='nav-item mx-3'>
             <span className='nav-link d-flex align-items-center'>
               <BiUserCircle size={22} className="me-1" />
-              {user?.name || user?.hospitalName || user?.organisationName} &nbsp;
+              {user?.name || user?.hospitalName} &nbsp;
               <span className="badge bg-secondary">{user?.role}</span>
             </span>
           </li>
 
-          {user?.role === "organisation" && ["/", "/donor", "/hospital"].includes(location.pathname) ? (
-            <li className='nav-item mx-3'>
-              <Link to="/analytics" className='nav-link'>Analytics</Link>
-            </li>
-          ) : (
+          {
             <li className='nav-item mx-3'>
               <Link to="/" className='nav-link'>Home</Link>
             </li>
-          )}
+          }
 
           <li className='nav-item mx-3'>
             <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
           </li>
+
         </ul>
       </div>
     </nav>
