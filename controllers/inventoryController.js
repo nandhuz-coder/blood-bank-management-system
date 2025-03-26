@@ -27,31 +27,44 @@ const createRequestController = async (req, res) => {
   }
 }
 
-//Get Donor Records
+
 const getDonorsListController = async (req, res) => {
   try {
-    const donorData = await userModel
-      .find({ role: "donor" })
-      .sort({ createdAt: -1 });
-
     const requestData = await request.find({
       hospitalId: req.body.userId,
       status: "pending",
-    });
+    }).lean(); // Convert to plain objects
 
+    // Fetch donor details separately
+    for (let req of requestData) {
+      const donorIds = req.donors.map(d => d.id);
+      const donorDetails = await userModel.find({ _id: { $in: donorIds } }, "name phone bloodGroup").lean();
+      req.interestedDonors = req.donors.length;
+      req.donors = req.donors.map(donor => {
+        const donorInfo = donorDetails.find(d => d._id.toString() === donor.id.toString());
+        return {
+          id: donor.id,
+          name: donorInfo?.name || "Unknown",
+          phone: donorInfo?.phone || "Unknown",
+          bloodGroup: donorInfo?.bloodGroup || "Unknown",
+          action: donor.action
+        };
+      });
+    }
     return res.status(200).send({
-      userData: donorData,
       requestData: requestData,
-    })
+    });
   } catch (error) {
-    console.log(error);
+    console.error("🔥 Error in donor API:", error);
     return res.status(500).send({
       success: false,
-      message: "Error in donor API",
+      message: "Error fetching donor list",
       error,
     });
   }
 };
+
+
 
 const deleteRequest = async (req, res) => {
   try {
@@ -154,11 +167,33 @@ const getDonationHistory = async (req, res) => {
   }
 }
 
+const getDonorsListController1 = async (req, res) => {
+  try {
+    const donorData = await userModel
+      .find({ role: "donor" })
+      .sort({ createdAt: -1 });
+
+    return res.status(200).send({
+      success: true,
+      donors: donorData,
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Error in donor API",
+      error,
+    });
+  }
+};
+
+
 module.exports = {
   getDonorsListController,
   deleteRequest,
   getuserReq,
   createRequestController,
   getIntrested,
-  getDonationHistory
+  getDonationHistory,
+  getDonorsListController1
 };

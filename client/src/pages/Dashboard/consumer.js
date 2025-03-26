@@ -1,56 +1,78 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../../components/shared/Layout/Layout";
-import moment from "moment";
 import API from "../../services/API";
-import { useSelector } from "react-redux";
 
 const Consumer = () => {
-  const { user } = useSelector((state) => state.auth);
   const [data, setData] = useState([]);
+  const [filterBloodGroup, setFilterBloodGroup] = useState("");
 
-  const getDonors = useCallback(async () => {
-    if (!user?._id) return;
+  const getDonors = async () => {
     try {
-      const { data } = await API.post("/inventory/get-inventory-hospital", {
-        filters: { inventoryType: "out", hospital: user._id },
-      });
+      const { data } = await API.get("/inventory/get-donors");
       if (data?.success) {
-        setData(data?.inventory);
+        setData(data?.donors);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
-  }, [user?._id]);
+  };
 
   useEffect(() => {
     getDonors();
-  }, [getDonors]); // ✅ No more warnings
+  }, []);
+
+  const filteredDonors = data.filter((donor) =>
+    filterBloodGroup ? donor.bloodGroup === filterBloodGroup : true
+  );
 
   return (
     <Layout>
       <div className="container mt-4">
-        <table className="table">
-          <thead>
-            <tr>
-              <th scope="col">Blood Group</th>
-              <th scope="col">Inventory Type</th>
-              <th scope="col">Quantity</th>
-              <th scope="col">Email</th>
-              <th scope="col">Date & Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.map((record) => (
-              <tr key={record._id}>
-                <td>{record.bloodGroup}</td>
-                <td>{record.inventoryType}</td>
-                <td>{record.quantity}</td>
-                <td>{record.email}</td>
-                <td>{moment(record.createdAt).format("DD/MM/YYYY hh:mm A")}</td>
+        <h4 className="mt-4">Available Donors</h4>
+        <div className="form-group mb-3">
+          <label htmlFor="filterBloodGroup"><strong>Filter by Blood Group:</strong></label>
+          <select
+            className="form-control w-25"
+            id="filterBloodGroup"
+            value={filterBloodGroup}
+            onChange={(e) => setFilterBloodGroup(e.target.value)}
+          >
+            <option value="">All</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </div>
+
+        {filteredDonors.length === 0 ? (
+          <p>No donors found</p>
+        ) : (
+          <table className="table table-striped">
+            <thead className="table-success">
+              <tr>
+                <th>Name</th>
+                <th>Blood Group</th>
+                <th>Phone</th>
+                <th>Address</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredDonors.map((donor) => (
+                <tr key={donor._id}>
+                  <td>{donor.name}</td>
+                  <td>{donor.bloodGroup}</td>
+                  <td>{donor.phone}</td>
+                  <td>{donor.address}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </Layout>
   );
