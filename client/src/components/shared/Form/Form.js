@@ -13,7 +13,6 @@ const Form = ({ formType, submitBtn, formTitle }) => {
     password: "",
     role: "donor",
     name: "",
-    organisationName: "",
     hospitalName: "",
     address: "",
     phone: "",
@@ -41,10 +40,6 @@ const Form = ({ formType, submitBtn, formTitle }) => {
     if (formType === "register") {
       if (formData.role === "admin" || formData.role === "donor") {
         if (!formData.name) newErrors.name = "Name is required.";
-      }
-
-      if (formData.role === "organisation" && !formData.organisationName) {
-        newErrors.organisationName = "Organisation Name is required.";
       }
 
       if (formData.role === "hospital" && !formData.hospitalName) {
@@ -94,7 +89,7 @@ const Form = ({ formType, submitBtn, formTitle }) => {
 
         {/* Role Selection */}
         <div className="d-flex mb-3">
-          {["donor", "admin", "organisation", "hospital"].map((option) => (
+          {["donor", "admin", "hospital"].map((option) => (
             <div key={option} className="form-check ms-2">
               <input
                 type="radio"
@@ -127,13 +122,6 @@ const Form = ({ formType, submitBtn, formTitle }) => {
               <>
                 <InputType labelFor="name" labelText="Name" inputType="text" name="name" value={formData.name} onChange={handleChange} autoComplete="name" />
                 {errors.name && <p className="text-danger">{errors.name}</p>}
-              </>
-            )}
-
-            {formData.role === "organisation" && (
-              <>
-                <InputType labelFor="organisationName" labelText="Organisation Name" inputType="text" name="organisationName" value={formData.organisationName} onChange={handleChange} />
-                {errors.organisationName && <p className="text-danger">{errors.organisationName}</p>}
               </>
             )}
 
