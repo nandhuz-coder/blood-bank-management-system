@@ -116,9 +116,11 @@ const Form = ({ formType, submitBtn, formTitle }) => {
             <InputType labelFor="password" labelText="Password" inputType="password" name="password" value={formData.password} onChange={handleChange} autoComplete="current-password" />
             {errors.password && <p className="text-danger">{errors.password}</p>}
           </>
-        ) : (
+        ) : formData.role === "admin" ? <>
+          <p>Admin appilication temporarly clossed.</p>
+        </> : (
           <>
-            {(formData.role === "admin" || formData.role === "donor") && (
+            {(formData.role === "donor") && (
               <>
                 <InputType labelFor="name" labelText="Name" inputType="text" name="name" value={formData.name} onChange={handleChange} autoComplete="name" />
                 {errors.name && <p className="text-danger">{errors.name}</p>}
