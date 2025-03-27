@@ -1,34 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import Layout from '../../components/shared/Layout/Layout';
-import API from '../../services/API';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import Layout from "../../components/shared/Layout/Layout";
+import API from "../../services/API";
+import { useNavigate } from "react-router-dom";
+import CertificateGenerator from "../../components/shared/download/generate"; // Import the Certificate Generator
 
 const DonorPage = () => {
   const { user } = useSelector((state) => state.auth);
   const [donationHistory, setDonationHistory] = useState([]);
   const navigate = useNavigate();
+
   useEffect(() => {
-    API.get('/inventory/donation-history')
-      .then(response => {
-        console.log(response.data);
-        if (response.data.data) setDonationHistory(response.data.data);
-        else setDonationHistory([])
+    API.get("/inventory/donation-history")
+      .then((response) => {
+        if (response.data.success && response.data.data) {
+          setDonationHistory(response.data.data);
+        } else {
+          setDonationHistory([]);
+        }
       })
-      .catch(error => {
-        console.error('There was an error fetching the donation history!', error);
+      .catch((error) => {
+        console.error(
+          "There was an error fetching the donation history!",
+          error
+        );
       });
   }, []);
 
-  const downloadCertificate = () => {
-    alert('Certificate downloaded!');
+  const handleDownload = (donationDate, hospitalName) => {
+    CertificateGenerator({
+      user: user.name,
+      donationDate,
+      hospital: hospitalName,
+    });
   };
 
-  const quotes = [
-    "The blood you donate gives someone another chance at life.",
-    "A single pint can save three lives, a single gesture can create a million smiles.",
-    "Donate blood and be the reason for someone's heartbeat."
-  ];
 
   return (
     <Layout>
@@ -46,22 +52,29 @@ const DonorPage = () => {
             <table className="table mt-3">
               <thead>
                 <tr>
-                  <th>Name</th>
+                  <th>Hospital Name</th>
                   <th>Address</th>
                   <th>Date</th>
-                  <th>Location</th>
                   <th>Download</th>
                 </tr>
               </thead>
               <tbody>
                 {donationHistory.map((record, index) => (
                   <tr key={index}>
-                    <td>{record.name}</td>
-                    <td>{record.address}</td>
-                    <td>{record.date}</td>
-                    <td>{record.location}</td>
+                    <td>{record.hospitalName || "N/A"}</td>
+                    <td>{record.address || "N/A"}</td>
                     <td>
-                      <button className="btn btn-primary" onClick={downloadCertificate}>
+                      {record.donatedDate
+                        ? new Date(record.donatedDate).toLocaleDateString()
+                        : "N/A"}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() =>
+                          handleDownload(record.donatedDate, record.hospitalName)
+                        }
+                      >
                         Download
                       </button>
                     </td>
@@ -70,20 +83,25 @@ const DonorPage = () => {
               </tbody>
             </table>
           )}
-          <div className="mt-4">
-            <ul>
-              {quotes.map((quote, index) => (
-                <li key={index}>{quote}</li>
-              ))}
-            </ul>
-            <p>
-              Happy donating <button onClick={() => navigate('/donation')} style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0, color: 'red' }}>Blood!</button>
-            </p>
-          </div>
+          <p className="mt-4">
+            Happy donating{" "}
+            <button
+              onClick={() => navigate("/donation")}
+              style={{
+                cursor: "pointer",
+                background: "none",
+                border: "none",
+                padding: 0,
+                color: "red",
+              }}
+            >
+              Blood!
+            </button>
+          </p>
         </div>
       </div>
     </Layout>
   );
-}
+};
 
 export default DonorPage;

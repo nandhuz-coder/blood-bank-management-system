@@ -1,12 +1,24 @@
 const userModel = require("../models/userModel");
 const request = require("../models/request");
 const donated = require("../models/donated");
+const mongoose = require("mongoose");
 
 
 const createRequestController = async (req, res) => {
   try {
-    const requestBlood = new request(req.body);
-    await requestBlood.save();
+    let requestBlood = await request.findOne({ bloodGroup: req.body.bloodGroup, hospitalId: req.body.hospitalId });
+    if (requestBlood) {
+      requestBlood.units = parseInt(req.body.units) + requestBlood.units;
+      await requestBlood.save();
+    } else {
+      requestBlood = new request({
+        bloodGroup: req.body.bloodGroup,
+        hospitalId: req.body.hospitalId,
+        units: req.body.units,
+        status: "pending"
+      });
+      await requestBlood.save();
+    }
     const requestData = await request.find({
       hospitalId: req.body.hospitalId,
       status: "pending",
@@ -146,26 +158,57 @@ const getIntrested = async (req, res) => {
 
 const getDonationHistory = async (req, res) => {
   try {
-    const donationHistory = await donated.find({ user: req.body.userId }).populate({
-      path: 'donationHistory.hospital',
-      select: 'hospitalName address'
+    // Step 1: Fetch donation history without population
+    const donationHistory = await donated.find({ user: req.body.userId });
+
+    if (!donationHistory || donationHistory.length === 0) {
+      return res.status(200).send({ success: true, data: [] });
+    }
+
+    // Step 2: Extract hospital IDs
+    const hospitalIds = donationHistory.flatMap((record) =>
+      record.donationHistory.map((entry) => entry.hospital)
+    );
+
+    // Step 3: Fetch hospital details separately with role filter
+    const hospitals = await userModel.find({
+      _id: { $in: hospitalIds },
+      role: "hospital", // ✅ Ensuring only hospitals are fetched
+    }).select("hospitalName address");
+
+    // Step 4: Process and store updated history in sendData
+    let sendData = [];
+
+    donationHistory.forEach((record) => {
+      record.donationHistory.forEach((entry) => {
+        let hospitalData = hospitals.find(
+          (h) => h._id.toString() === entry.hospital.toString()
+        ) || { hospitalName: "N/A", address: "N/A" }; // Default values if hospital is missing
+
+        sendData.push({
+          donatedDate: entry.donatedDate,
+          hospitalName: hospitalData.hospitalName,
+          address: hospitalData.address,
+        });
+      });
     });
 
-    if (!donationHistory.length) return res.status(200).send({ data: false });
-
     return res.status(200).send({
-      data: donationHistory,
+      success: true,
+      data: sendData, // Sending cleaned data
     });
 
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching donation history:", error);
     return res.status(500).send({
       success: false,
       message: "Error in fetching donation history",
       error,
     });
   }
-}
+};
+
+
 
 const getDonorsListController1 = async (req, res) => {
   try {
@@ -187,6 +230,84 @@ const getDonorsListController1 = async (req, res) => {
   }
 };
 
+const updateDonorStatus = async (req, res) => {
+  try {
+    const { donorId, action, userId } = req.body; // Ensure `donorId` is correctly used
+
+    // Ensure ID is an ObjectId
+    const requestId = new mongoose.Types.ObjectId(userId);
+
+    // Find request by ID
+    const requestDoc = await request.findOne({ hospitalId: requestId, "donors.id": donorId });
+
+
+    if (!requestDoc) {
+      return res.status(404).send({
+        success: false,
+        message: "Request not found",
+      });
+    }
+
+    // Update donor status
+    let donorUpdated = false;
+    requestDoc.donors = requestDoc.donors.map((donor) => {
+      if (donor.id.toString() === donorId.toString()) { // Correct field name
+        donor.action = action;
+        donorUpdated = true;
+      }
+      return donor;
+    });
+
+    if (!donorUpdated) {
+      return res.status(404).send({
+        success: false,
+        message: "Donor not found in this request",
+      });
+    }
+
+    if (action === "accepted") {
+      requestDoc.units -= 1;
+      const donationRecord = await donated.findOne({ user: donorId });
+      if (donationRecord) {
+        donationRecord.lastDonatedDate = new Date();
+        donationRecord.donationHistory.push({
+          hospital: requestDoc.hospitalId,
+          donatedDate: new Date()
+        });
+        await donationRecord.save();
+      } else {
+        const newDonationRecord = new donated({
+          user: donorId,
+          lastDonatedDate: new Date(),
+          donationHistory: [{
+            hospital: requestDoc.hospitalId,
+            donatedDate: new Date()
+          }]
+        });
+        await newDonationRecord.save();
+      }
+      if (requestDoc.units === 0) {
+        await request.deleteOne({ _id: requestDoc._id });
+      }
+    }
+
+    await requestDoc.save();
+
+    return res.status(200).send({
+      success: true,
+      message: "Donor status updated successfully",
+    });
+
+  } catch (error) {
+    console.error("🔥 Error updating donor status:", error);
+    return res.status(500).send({
+      success: false,
+      message: "Error in updating donor status",
+      error,
+    });
+  }
+};
+
 
 module.exports = {
   getDonorsListController,
@@ -195,5 +316,6 @@ module.exports = {
   createRequestController,
   getIntrested,
   getDonationHistory,
-  getDonorsListController1
+  getDonorsListController1,
+  updateDonorStatus
 };

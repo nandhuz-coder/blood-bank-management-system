@@ -3,7 +3,8 @@ const authmiddleware = require("../middlewares/authmiddleware");
 const { createRequestController,
     deleteRequest, getuserReq,
     getDonorsListController, getIntrested,
-    getDonationHistory, getDonorsListController1
+    getDonationHistory, getDonorsListController1,
+    updateDonorStatus
 } = require("../controllers/inventoryController");
 
 const router = express.Router();
@@ -21,5 +22,7 @@ router.post('/user/intrested', authmiddleware, getIntrested)
 router.get('/donation-history', authmiddleware, getDonationHistory)
 
 router.get('/get-donors', authmiddleware, getDonorsListController1);
+
+router.post('/accept-donor', authmiddleware,updateDonorStatus)
 
 module.exports = router; 

@@ -6,12 +6,12 @@ const getDonorsListController = async (req, res) => {
     const donorData = await userModel
       .find({ role: "donor" })
       .sort({ createdAt: -1 });
-      return res.status(200).send({
-        success:true,
-        Totalcount:donorData.length,
-        message:"Donor List Fetched Successfully",
-        donorData
-      })
+    return res.status(200).send({
+      success: true,
+      Totalcount: donorData.length,
+      message: "Donor List Fetched Successfully",
+      donorData
+    })
   } catch (error) {
     console.log(error);
     return res.status(500).send({
@@ -24,66 +24,43 @@ const getDonorsListController = async (req, res) => {
 
 //Get Hospital records
 const getHospitalsListController = async (req, res) => {
-    try {
-      const hospitalData = await userModel
-        .find({ role: "hospital" })
-        .sort({ createdAt: -1 });
-        return res.status(200).send({
-          success:true,
-          Totalcount:hospitalData.length,
-          message:"Hospital List Fetched Successfully",
-         hospitalData
-        })
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send({
-        success: false,
-        message: "Error in Hospital API",
-        error,
-      });
-    }
-  };
+  try {
+    const hospitalData = await userModel
+      .find({ role: "hospital" })
+      .sort({ createdAt: -1 });
+    return res.status(200).send({
+      success: true,
+      Totalcount: hospitalData.length,
+      message: "Hospital List Fetched Successfully",
+      hospitalData
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Error in Hospital API",
+      error,
+    });
+  }
+};
+//Delete donor
 
-  //Get Organisation records
-const getOrganisationsListController = async (req, res) => {
-    try {
-      const organisationsData = await userModel
-        .find({ role: "organisation" })
-        .sort({ createdAt: -1 });
-        return res.status(200).send({
-          success:true,
-          Totalcount:organisationsData.length,
-          message:"Organisation List Fetched Successfully",
-          organisationsData
-        })
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send({
-        success: false,
-        message: "Error in Organisation API",
-        error,
-      });
-    }
-  };
+const deleteDonorController = async (req, res) => {
+  try {
+    await userModel.findByIdAndDelete(req.params.id);
+    return res.status(200).send({
+      success: true,
+      message: "Record deleted Successfully"
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Error in delete API",
+      error
+    })
+  }
+}
 
-  //Delete donor
 
-  const deleteDonorController=async(req,res)=>{
-    try {
-      await userModel.findByIdAndDelete(req.params.id);
-      return res.status(200).send({
-        success:true,
-        message :"Record deleted Successfully"
-      })
-    } catch (error) {
-      console.log(error);
-        return res.status(500).send({
-          success:false,
-          message:"Error in delete API",
-          error
-        })
-      }
-    }
-  
-
-module.exports = { getDonorsListController,getHospitalsListController ,getOrganisationsListController,deleteDonorController};
+module.exports = { getDonorsListController, getHospitalsListController, deleteDonorController };

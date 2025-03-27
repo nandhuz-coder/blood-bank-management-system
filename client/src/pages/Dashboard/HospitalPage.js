@@ -16,60 +16,113 @@ const HospitalPage = () => {
   const [filterBloodGroup, setFilterBloodGroup] = useState("");
 
   useEffect(() => {
-    API.get("/inventory/donor-list")
-      .then((response) => {
-        const requestData = response.data?.requestData || [];
-        setPendingRequests(requestData);
-      })
-      .catch((error) => {
-        console.error(error);
-        toast.error("An error occurred while fetching donors");
-        setPendingRequests([]);
-      });
+    fetchDonorRequests();
   }, []);
+
+  const fetchDonorRequests = async () => {
+    try {
+      const response = await API.get("/inventory/donor-list");
+      setPendingRequests(response.data?.requestData || []);
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while fetching donor requests");
+      setPendingRequests([]);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    API.post("/inventory/requests/create-request", {
-      ...formData,
-      hospitalId: user?._id,
-    })
-      .then((data) => {
-        toast.success("Request submitted successfully");
-        setPendingRequests(data.data.data);
-        setShowModal(false);
-      })
-      .catch((error) => {
-        console.error(error);
-        toast.error("An error occurred while submitting the request");
+    try {
+      const response = await API.post("/inventory/requests/create-request", {
+        ...formData,
+        hospitalId: user?._id,
       });
-    setShowModal(false);
+      toast.success("Request submitted successfully");
+      setPendingRequests(response.data.data);
+      setShowModal(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while submitting the request");
+    }
   };
 
-  const handleDeleteRequest = (requestId) => {
-    API.delete(`/inventory/requests/delete-request/${requestId}`)
-      .then(() => {
-        toast.success("Request deleted successfully");
-        setPendingRequests(pendingRequests.filter((request) => request._id !== requestId));
-      })
-      .catch((error) => {
-        console.error(error);
-        toast.error("An error occurred while deleting the request");
+  const handleDeleteRequest = async (requestId) => {
+    try {
+      await API.delete(`/inventory/requests/delete-request/${requestId}`);
+      toast.success("Request deleted successfully");
+      setPendingRequests(pendingRequests.filter((request) => request._id !== requestId));
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while deleting the request");
+    }
+  };
+
+  const handleAcceptDonor = async (donorId, requestId) => {
+    try {
+      const res = await API.post("/inventory/accept-donor", {
+        requestId, // ✅ Ensure this matches request `_id`
+        donorId, // ✅ Ensure this matches donor's user `_id`
+        action: "waiting"
       });
+
+      if (res.data.success) {
+        toast.success("Donor accepted successfully");
+        fetchDonorRequests();
+      } else {
+        toast.info("Can't accept donor");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while accepting the donor");
+    }
   };
 
-  const handleAcceptDonor = (donorId) => {
-    toast.success("Donor accepted successfully");
+  const handleRejectDonor = async (donorId, requestId) => {
+    try {
+      const res = await API.post("/inventory/accept-donor", {
+        requestId, // ✅ Ensure this matches request `_id`
+        donorId, // ✅ Ensure this matches donor's user `_id`
+        action: "rejected"
+      });
+
+      if (res.data.success) {
+        toast.warn("Donor Rejected successfully");
+        fetchDonorRequests();
+      } else {
+        toast.info("Can't accept donor");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while accepting the donor");
+    }
   };
 
-  const handleRejectDonor = (donorId) => {
-    toast.error("Donor rejected successfully");
+
+  const approvedonor = async (donorId, requestId) => {
+    try {
+      const res = await API.post("/inventory/accept-donor", {
+        requestId, // ✅ Ensure this matches request `_id`
+        donorId, // ✅ Ensure this matches donor's user `_id`
+        action: "accepted"
+      });
+
+      if (res.data.success) {
+        toast.warn("certificate generated successfully");
+        fetchDonorRequests();
+      } else {
+        toast.info("Can't generate");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while accepting the donor");
+    }
   };
+
 
   return (
     <Layout>
@@ -101,7 +154,7 @@ const HospitalPage = () => {
                   <tr key={request._id}>
                     <td>{request.bloodGroup}</td>
                     <td>{request.units}</td>
-                    <td>{request.interestedDonors}</td>
+                    <td>{request.donors?.length || 0}</td>
                     <td>
                       <button className="btn btn-danger btn-sm" onClick={() => handleDeleteRequest(request._id)}>
                         Delete
@@ -148,40 +201,40 @@ const HospitalPage = () => {
             </thead>
             <tbody>
               {pendingRequests
-                .filter(req => req.donors && req.donors.length > 0)
-                .flatMap(req => req.donors.map((donor, index) => (
+                .flatMap(req => req.donors || [])
+                .filter(donor => filterBloodGroup === "" || donor.bloodGroup === filterBloodGroup)
+                .map((donor, index) => (
                   <tr key={index}>
                     <td>{donor.name}</td>
                     <td>{donor.bloodGroup}</td>
                     <td>{donor.phone}</td>
                     <td>
-                      {donor.action == "pending" ?
+                      {donor.action === "pending" ? (
                         <>
-                          <button className="btn btn-success btn-sm" onClick={() => handleAcceptDonor(donor._id)}>
+                          <button className="btn btn-success btn-sm" onClick={() => handleAcceptDonor(donor.id, donor.requestId)}>
                             Accept
                           </button>
-                          <button className="btn btn-danger btn-sm ml-2" onClick={() => handleRejectDonor(donor._id)}>
+                          <button className="btn btn-danger btn-sm ml-2" onClick={() => handleRejectDonor(donor.id, donor.requestId)}>
                             Reject
                           </button>
-                        </> : donor.action == "waiting" ?
-                          <>
-                            <button className="btn btn-info btn-sm" onClick={() => handleAcceptDonor(donor._id)}>
-                              Donated
-                            </button>
-                          </> : donor.action == "rejected" ?
-                            <>
-                              <button className="btn btn-danger disabled btn-sm" onClick={() => handleAcceptDonor(donor._id)}>
-                                Rejected
-                              </button>
-                            </> : <button className="btn btn-secondary disabled btn-sm" onClick={() => handleAcceptDonor(donor._id)}>
-                              Donated
-                            </button>
-                      }
+                        </>
+                      ) : donor.action === "waiting" ? (
+                        <button className="btn btn-info btn-sm" onClick={() => approvedonor(donor.id, donor.requestId)} >
+                          approve Certificate
+                        </button>
+                      ) : donor.action === "rejected" ? (
+                        <button className="btn btn-danger disabled btn-sm">
+                          Rejected
+                        </button>
+                      ) : (
+                        <button className="btn btn-secondary disabled btn-sm">
+                          Donated
+                        </button>
+                      )}
                     </td>
                   </tr>
-                )))}
+                ))}
             </tbody>
-
           </table>
         ) : (
           <p>No donors found</p>
@@ -217,7 +270,15 @@ const HospitalPage = () => {
                   </div>
                   <div className="form-group">
                     <label>Units</label>
-                    <input type="number" className="form-control" name="units" value={formData.units} onChange={handleInputChange} required />
+                    <input
+                      type="number"
+                      className="form-control"
+                      name="units"
+                      value={formData.units}
+                      onChange={handleInputChange}
+                      min="1"
+                      required
+                    />
                   </div>
                   <button type="submit" className="btn btn-primary mt-3">Submit Request</button>
                 </form>
