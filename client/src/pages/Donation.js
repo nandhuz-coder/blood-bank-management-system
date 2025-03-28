@@ -63,7 +63,7 @@ const Donation = () => {
                 <td>{moment(record.createdAt).format("DD/MM/YYYY hh:mm A")}</td>
                 <td>{record.last ? moment(record.last).format("DD/MM/YYYY") : "Not donated yet"}</td>
                 <td>
-                  {record.last && moment(record.last).isAfter(moment().add(3, "months")) ? <>
+                  {record.last === false || moment(record.last)?.isAfter(moment().add(3, "months")) ? <>
                     {record.intrested === false ?
                       <button className="btn btn-primary btn-sm" onClick={() => postIntrested(record._id)}>
                         Interested
@@ -77,7 +77,7 @@ const Donation = () => {
                     }
                   </> : <>
                     <span className="text-muted">
-                      You can donate only after {moment(record.last).add(3, "months").format("DD/MM/YYYY")}
+                      You can donate only after {record.last ? moment(record.last).add(3, "months").format("DD/MM/YYYY") : "N/A"}
                     </span>
                   </>}
                   {/**

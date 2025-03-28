@@ -99,7 +99,7 @@ const getuserReq = async (req, res) => {
   try {
     const donated1 = await donated.findOne({ user: req.body.userId }, "lastDonatedDate");
     const blood = await userModel.findById(req.body.userId);
-    let last = null;
+    let last = false;
     const pendingRequests = await request.find({
       status: "pending",
       bloodGroup: blood.bloodGroup
@@ -114,7 +114,7 @@ const getuserReq = async (req, res) => {
         if (donor?.id.equals(userId)) request.intrested = true;
       });
     });
-    if (donated1) last = donated1.lastDonatedDate;
+    if (donated1?.lastDonatedDate) last = donated1.lastDonatedDate;
     return res.status(200).send({
       data: pendingRequests.map(req => ({
         ...req.toObject(),
