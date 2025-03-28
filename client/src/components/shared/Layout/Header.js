@@ -51,7 +51,7 @@ const Header = () => {
       <div className='container-fluid d-flex justify-content-between align-items-center'>
         <div className='navbar-brand d-flex align-items-center'>
           <BiDonateBlood color='red' size={28} className="me-2" />
-          <span className="fw-bold">Blood Bank App</span>
+          <span className="fw-bold">DONORHUB</span>
         </div>
 
         <ul className='navbar-nav d-flex align-items-center'>
