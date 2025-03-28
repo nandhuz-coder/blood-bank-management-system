@@ -49,6 +49,7 @@ const Donation = () => {
               <th scope="col">Hospital Name</th>
               <th scope="col">Location</th>
               <th scope="col">Date & Time</th>
+              <th scope="col">Last donated</th>
               <th scope="col">action</th>
             </tr>
           </thead>
@@ -60,14 +61,18 @@ const Donation = () => {
                 <td>{record.hospitalId.hospitalName}</td>
                 <td>{record.hospitalId.address}</td>
                 <td>{moment(record.createdAt).format("DD/MM/YYYY hh:mm A")}</td>
+                <td>{record.last ? moment(record.last).format("DD/MM/YYYY") : "Not donated yet"}</td>
                 <td>
                   {record.intrested === false ?
                     <button className="btn btn-primary btn-sm" onClick={() => postIntrested(record._id)}>
                       Interested
-                    </button> :
-                    <button className="btn btn-secondary disabled btn-sm">
-                      requested
-                    </button>
+                    </button> : record.status === "Rejected" ?
+                      <button className="btn btn-danger disabled btn-sm">
+                        rejected
+                      </button>
+                      : <button className="btn btn-secondary disabled btn-sm">
+                        requested
+                      </button>
                   }
                 </td>
               </tr>

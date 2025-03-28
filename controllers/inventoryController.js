@@ -97,7 +97,9 @@ const deleteRequest = async (req, res) => {
 
 const getuserReq = async (req, res) => {
   try {
+    const donated1 = await donated.findOne({ user: req.body.userId }, "lastDonatedDate");
     const blood = await userModel.findById(req.body.userId);
+    let last = null;
     const pendingRequests = await request.find({
       status: "pending",
       bloodGroup: blood.bloodGroup
@@ -112,10 +114,12 @@ const getuserReq = async (req, res) => {
         if (donor?.id.equals(userId)) request.intrested = true;
       });
     });
+    if (donated1) last = donated1.lastDonatedDate;
     return res.status(200).send({
       data: pendingRequests.map(req => ({
         ...req.toObject(),
-        intrested: req.intrested
+        intrested: req.intrested,
+        last: last,
       }))
     });
   } catch (error) {
@@ -183,7 +187,7 @@ const getDonationHistory = async (req, res) => {
       record.donationHistory.forEach((entry) => {
         let hospitalData = hospitals.find(
           (h) => h._id.toString() === entry.hospital.toString()
-        ) || { hospitalName: "N/A", address: "N/A" }; // Default values if hospital is missing
+        ) || { hospitalName: "N/A", address: "N/A" };
 
         sendData.push({
           donatedDate: entry.donatedDate,
@@ -195,7 +199,7 @@ const getDonationHistory = async (req, res) => {
 
     return res.status(200).send({
       success: true,
-      data: sendData, // Sending cleaned data
+      data: sendData,
     });
 
   } catch (error) {
