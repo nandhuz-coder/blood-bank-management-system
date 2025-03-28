@@ -77,7 +77,6 @@ const getDonorsListController = async (req, res) => {
 };
 
 
-
 const deleteRequest = async (req, res) => {
   try {
     const id = req.params.id;

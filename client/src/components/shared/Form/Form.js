@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InputType from "./InputType";
 import { Link } from "react-router-dom";
-import useAuthService from "../../../services/authServices"; // ✅ Import the hook
+import useAuthService from "../../../services/authServices";
 
 const Form = ({ formType, submitBtn, formTitle }) => {
   const navigate = useNavigate();
@@ -16,11 +16,10 @@ const Form = ({ formType, submitBtn, formTitle }) => {
     hospitalName: "",
     address: "",
     phone: "",
-    website: "",
     bloodGroup: "",
   });
 
-  const [errors, setErrors] = useState({}); // ✅ Store validation errors
+  const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     let newErrors = {};
@@ -60,7 +59,7 @@ const Form = ({ formType, submitBtn, formTitle }) => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // ✅ Returns `true` if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
@@ -152,9 +151,6 @@ const Form = ({ formType, submitBtn, formTitle }) => {
                 {errors.bloodGroup && <p className="text-danger">{errors.bloodGroup}</p>}
               </>
             )}
-
-            <InputType labelFor="website" labelText="Website" inputType="url" name="website" value={formData.website} onChange={handleChange} placeholder="https://example.com" />
-            {errors.website && <p className="text-danger">{errors.website}</p>}
           </>
         )}
 
