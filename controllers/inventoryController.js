@@ -232,14 +232,16 @@ const getDonorsListController1 = async (req, res) => {
 
 const updateDonorStatus = async (req, res) => {
   try {
-    const { donorId, action, userId } = req.body; // Ensure `donorId` is correctly used
+    const { donorId, action, userId } = req.body;
 
-    // Ensure ID is an ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(donorId)) {
+      return res.status(400).send({ success: false, message: "Invalid ID format" });
+    }
+
     const requestId = new mongoose.Types.ObjectId(userId);
 
-    // Find request by ID
+    // Find request by hospitalId and donorId
     const requestDoc = await request.findOne({ hospitalId: requestId, "donors.id": donorId });
-
 
     if (!requestDoc) {
       return res.status(404).send({
@@ -248,26 +250,24 @@ const updateDonorStatus = async (req, res) => {
       });
     }
 
-    // Update donor status
-    let donorUpdated = false;
-    requestDoc.donors = requestDoc.donors.map((donor) => {
-      if (donor.id.toString() === donorId.toString()) { // Correct field name
-        donor.action = action;
-        donorUpdated = true;
-      }
-      return donor;
-    });
+    // Update donor action
+    const donorIndex = requestDoc.donors.findIndex(donor => donor.id.toString() === donorId.toString());
 
-    if (!donorUpdated) {
+    if (donorIndex === -1) {
       return res.status(404).send({
         success: false,
         message: "Donor not found in this request",
       });
     }
 
+    // Set the action for the donor
+    requestDoc.donors[donorIndex].action = action;
+
     if (action === "accepted") {
       requestDoc.units -= 1;
+
       const donationRecord = await donated.findOne({ user: donorId });
+
       if (donationRecord) {
         donationRecord.lastDonatedDate = new Date();
         donationRecord.donationHistory.push({
@@ -286,12 +286,17 @@ const updateDonorStatus = async (req, res) => {
         });
         await newDonationRecord.save();
       }
+
       if (requestDoc.units === 0) {
         await request.deleteOne({ _id: requestDoc._id });
       }
     }
 
-    await requestDoc.save();
+    // Save the requestDoc safely
+    await request.findOneAndUpdate(
+      { _id: requestDoc._id, "donors.id": donorId },
+      { $set: { "donors.$.action": action, units: requestDoc.units } }
+    );
 
     return res.status(200).send({
       success: true,
